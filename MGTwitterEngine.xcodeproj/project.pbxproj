@@ -611,7 +611,6 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/yajl/build/yajl-1.0.7/lib\"",
 					"\"$(SRCROOT)\"",
 				);
 				ONLY_ACTIVE_ARCH_PRE_XCODE_3_1 = "$(NATIVE_ARCH_ACTUAL)";
@@ -636,7 +635,6 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/yajl/build/yajl-1.0.7/lib\"",
 					"\"$(SRCROOT)\"",
 				);
 				PRODUCT_NAME = MGTwitterEngine;
