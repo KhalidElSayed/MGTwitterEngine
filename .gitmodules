@@ -1,3 +1,6 @@
 [submodule "oauthconsumer"]
 	path = oauthconsumer
 	url = git@github.com:matej/oauthconsumer.git
+[submodule "TouchJSON"]
+	path = TouchJSON
+	url = http://github.com/schwa/TouchJSON.git

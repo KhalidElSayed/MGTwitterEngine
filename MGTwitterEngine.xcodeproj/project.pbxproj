@@ -43,7 +43,6 @@
 		1E798A68118D077E00DDD6D9 /* NSCharacterSet_Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E7989EC118D077E00DDD6D9 /* NSCharacterSet_Extensions.m */; };
 		1E798A69118D077E00DDD6D9 /* NSDictionary_JSONExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E7989EE118D077E00DDD6D9 /* NSDictionary_JSONExtensions.m */; };
 		1E798A6A118D077E00DDD6D9 /* NSScanner_Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E7989F0118D077E00DDD6D9 /* NSScanner_Extensions.m */; };
-		1E798A6B118D077E00DDD6D9 /* CJSONDataSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E7989F3118D077E00DDD6D9 /* CJSONDataSerializer.m */; };
 		1E798A6C118D077E00DDD6D9 /* CJSONDeserializer.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E7989F5118D077E00DDD6D9 /* CJSONDeserializer.m */; };
 		1E798A6D118D077E00DDD6D9 /* CJSONScanner.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E7989F7118D077E00DDD6D9 /* CJSONScanner.m */; };
 		1E798A6E118D077E00DDD6D9 /* CJSONSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E7989F9118D077E00DDD6D9 /* CJSONSerializer.m */; };
@@ -139,8 +138,6 @@
 		1E7989EE118D077E00DDD6D9 /* NSDictionary_JSONExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSDictionary_JSONExtensions.m; sourceTree = "<group>"; };
 		1E7989EF118D077E00DDD6D9 /* NSScanner_Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSScanner_Extensions.h; sourceTree = "<group>"; };
 		1E7989F0118D077E00DDD6D9 /* NSScanner_Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSScanner_Extensions.m; sourceTree = "<group>"; };
-		1E7989F2118D077E00DDD6D9 /* CJSONDataSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CJSONDataSerializer.h; sourceTree = "<group>"; };
-		1E7989F3118D077E00DDD6D9 /* CJSONDataSerializer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CJSONDataSerializer.m; sourceTree = "<group>"; };
 		1E7989F4118D077E00DDD6D9 /* CJSONDeserializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CJSONDeserializer.h; sourceTree = "<group>"; };
 		1E7989F5118D077E00DDD6D9 /* CJSONDeserializer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CJSONDeserializer.m; sourceTree = "<group>"; };
 		1E7989F6118D077E00DDD6D9 /* CJSONScanner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CJSONScanner.h; sourceTree = "<group>"; };
@@ -393,8 +390,6 @@
 		1E7989F1118D077E00DDD6D9 /* JSON */ = {
 			isa = PBXGroup;
 			children = (
-				1E7989F2118D077E00DDD6D9 /* CJSONDataSerializer.h */,
-				1E7989F3118D077E00DDD6D9 /* CJSONDataSerializer.m */,
 				1E7989F4118D077E00DDD6D9 /* CJSONDeserializer.h */,
 				1E7989F5118D077E00DDD6D9 /* CJSONDeserializer.m */,
 				1E7989F6118D077E00DDD6D9 /* CJSONScanner.h */,
@@ -665,7 +660,6 @@
 				1E798A68118D077E00DDD6D9 /* NSCharacterSet_Extensions.m in Sources */,
 				1E798A69118D077E00DDD6D9 /* NSDictionary_JSONExtensions.m in Sources */,
 				1E798A6A118D077E00DDD6D9 /* NSScanner_Extensions.m in Sources */,
-				1E798A6B118D077E00DDD6D9 /* CJSONDataSerializer.m in Sources */,
 				1E798A6C118D077E00DDD6D9 /* CJSONDeserializer.m in Sources */,
 				1E798A6D118D077E00DDD6D9 /* CJSONScanner.m in Sources */,
 				1E798A6E118D077E00DDD6D9 /* CJSONSerializer.m in Sources */,
