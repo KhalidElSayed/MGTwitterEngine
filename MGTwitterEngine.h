@@ -23,14 +23,10 @@
     NSString *_clientURL;
     NSString *_clientSourceToken;
 	NSString *_APIDomain;
-#if YAJL_AVAILABLE || TOUCHJSON_AVAILABLE
 	NSString *_searchDomain;
-#endif
     BOOL _secureConnection;
 	BOOL _clearsCookies;
-#if YAJL_AVAILABLE || TOUCHJSON_AVAILABLE
 	MGTwitterEngineDeliveryOptions _deliveryOptions;
-#endif
 	
 	// OAuth
 	NSString *_consumerKey;
@@ -57,18 +53,14 @@
 - (void)setClientName:(NSString *)name version:(NSString *)version URL:(NSString *)url token:(NSString *)token;
 - (NSString *)APIDomain;
 - (void)setAPIDomain:(NSString *)domain;
-#if YAJL_AVAILABLE || TOUCHJSON_AVAILABLE
 - (NSString *)searchDomain;
 - (void)setSearchDomain:(NSString *)domain;
-#endif
 - (BOOL)usesSecureConnection; // YES = uses HTTPS, default is YES
 - (void)setUsesSecureConnection:(BOOL)flag;
 - (BOOL)clearsCookies; // YES = deletes twitter.com cookies when setting username/password, default is NO (see README.txt)
 - (void)setClearsCookies:(BOOL)flag;
-#if YAJL_AVAILABLE || TOUCHJSON_AVAILABLE
 - (MGTwitterEngineDeliveryOptions)deliveryOptions;
 - (void)setDeliveryOptions:(MGTwitterEngineDeliveryOptions)deliveryOptions;
-#endif
 
 // Connection methods
 - (NSUInteger)numberOfConnections;
@@ -229,8 +221,6 @@
 // All methods below return a unique connection identifier.
 // ======================================================================================================
 
-#if YAJL_AVAILABLE || TOUCHJSON_AVAILABLE
-
 // Search method
 
 - (NSString *)getSearchResultsForQuery:(NSString *)query;
@@ -240,8 +230,6 @@
 // Trends method
 
 - (NSString *)getCurrentTrends; // current trends
-
-#endif
 
 @end
 

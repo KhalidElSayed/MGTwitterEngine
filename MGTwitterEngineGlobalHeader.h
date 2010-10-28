@@ -48,9 +48,6 @@
  target.
 */
 
-#define YAJL_AVAILABLE 0
-#define TOUCHJSON_AVAILABLE 1
-
 #ifndef __MGTWITTERENGINEID__
 #define __MGTWITTERENGINEID__
 typedef unsigned long long MGTwitterEngineID;

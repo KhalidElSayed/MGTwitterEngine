@@ -12,47 +12,14 @@
 
 #import "NSData+Base64.h"
 
-#ifndef USE_LIBXML
-//  if you wish to use LibXML, add USE_LIBXML=1 to "Precompiler Macros" in Project Info for all targets
-#   define USE_LIBXML 0
-#endif
+#import "MGTwitterTouchJSONParser.h"
 
-#if YAJL_AVAILABLE
-	#define API_FORMAT @"json"
 
-	#import "MGTwitterStatusesYAJLParser.h"
-	#import "MGTwitterMessagesYAJLParser.h"
-	#import "MGTwitterUsersYAJLParser.h"
-	#import "MGTwitterMiscYAJLParser.h"
-	#import "MGTwitterSearchYAJLParser.h"
-#elif TOUCHJSON_AVAILABLE
-	#define API_FORMAT @"json"
-
-	#import "MGTwitterTouchJSONParser.h"
-#else
-	#define API_FORMAT @"xml"
-
-	#if USE_LIBXML
-		#import "MGTwitterStatusesLibXMLParser.h"
-		#import "MGTwitterMessagesLibXMLParser.h"
-		#import "MGTwitterUsersLibXMLParser.h"
-		#import "MGTwitterMiscLibXMLParser.h"
-		#import "MGTwitterSocialGraphLibXMLParser.h"
-	#else
-		#import "MGTwitterStatusesParser.h"
-		#import "MGTwitterUsersParser.h"
-		#import "MGTwitterMessagesParser.h"
-		#import "MGTwitterMiscParser.h"
-		#import "MGTwitterSocialGraphParser.h"
-		#import "MGTwitterUserListsParser.h"
-	#endif
-#endif
+#define API_FORMAT @"json"
 
 #define TWITTER_DOMAIN          @"api.twitter.com/1"
+#define TWITTER_SEARCH_DOMAIN	@"search.twitter.com"
 
-#if YAJL_AVAILABLE || TOUCHJSON_AVAILABLE
-	#define TWITTER_SEARCH_DOMAIN	@"search.twitter.com"
-#endif
 #define HTTP_POST_METHOD        @"POST"
 #define MAX_MESSAGE_LENGTH      140 // Twitter recommends tweets of max 140 chars
 #define MAX_NAME_LENGTH			20
@@ -153,15 +120,11 @@
         _clientURL = [DEFAULT_CLIENT_URL retain];
 		_clientSourceToken = [DEFAULT_CLIENT_TOKEN retain];
 		_APIDomain = [TWITTER_DOMAIN retain];
-#if YAJL_AVAILABLE || TOUCHJSON_AVAILABLE
 		_searchDomain = [TWITTER_SEARCH_DOMAIN retain];
-#endif
 
         _secureConnection = YES;
 		_clearsCookies = NO;
-#if YAJL_AVAILABLE || TOUCHJSON_AVAILABLE
 		_deliveryOptions = MGTwitterEngineDeliveryAllResultsOption;
-#endif
     }
     
     return self;
@@ -182,9 +145,7 @@
     [_clientURL release];
     [_clientSourceToken release];
 	[_APIDomain release];
-#if YAJL_AVAILABLE || TOUCHJSON_AVAILABLE
 	[_searchDomain release];
-#endif
     
     [super dealloc];
 }
@@ -261,8 +222,6 @@
 }
 
 
-#if YAJL_AVAILABLE || TOUCHJSON_AVAILABLE
-
 - (NSString *)searchDomain
 {
 	return [[_searchDomain retain] autorelease];
@@ -278,8 +237,6 @@
 		_searchDomain = [domain retain];
 	}
 }
-
-#endif
 
 
 - (BOOL)usesSecureConnection
@@ -305,7 +262,6 @@
 	_clearsCookies = flag;
 }
 
-#if YAJL_AVAILABLE || TOUCHJSON_AVAILABLE
 
 - (MGTwitterEngineDeliveryOptions)deliveryOptions
 {
@@ -317,7 +273,6 @@
 	_deliveryOptions = deliveryOptions;
 }
 
-#endif
 
 #pragma mark Connection methods
 
@@ -610,7 +565,6 @@
         fullPath = [self _queryStringWithBase:fullPath parameters:params prefixed:YES];
     }
     
-#if YAJL_AVAILABLE || TOUCHJSON_AVAILABLE
 	NSString *domain = nil;
 	NSString *connectionType = nil;
 	if (requestType == MGTwitterSearchRequest || requestType == MGTwitterSearchCurrentTrendsRequest)
@@ -630,18 +584,6 @@
 			connectionType = @"http";
 		}
 	}
-#else
-	NSString *domain = _APIDomain;
-	NSString *connectionType = nil;
-	if (_secureConnection)
-	{
-		connectionType = @"https";
-	}
-	else
-	{
-		connectionType = @"http";
-	}
-#endif
 	
 #if 1 // SET_AUTHORIZATION_IN_HEADER
     NSString *urlString = [NSString stringWithFormat:@"%@://%@/%@", 
@@ -709,7 +651,7 @@
 
 #pragma mark Parsing methods
 
-#if YAJL_AVAILABLE || TOUCHJSON_AVAILABLE
+
 - (void)_parseDataForConnection:(MGTwitterHTTPURLConnection *)connection
 {
     NSData *jsonData = [[[connection data] copy] autorelease];
@@ -725,45 +667,6 @@
 	}
 #endif
 
-#if YAJL_AVAILABLE
-    switch (responseType) {
-        case MGTwitterStatuses:
-        case MGTwitterStatus:
-            [MGTwitterStatusesYAJLParser parserWithJSON:jsonData delegate:self 
-                              connectionIdentifier:identifier requestType:requestType 
-                                      responseType:responseType URL:URL deliveryOptions:_deliveryOptions];
-            break;
-        case MGTwitterUsers:
-        case MGTwitterUser:
-            [MGTwitterUsersYAJLParser parserWithJSON:jsonData delegate:self 
-                           connectionIdentifier:identifier requestType:requestType 
-                                   responseType:responseType URL:URL deliveryOptions:_deliveryOptions];
-            break;
-        case MGTwitterDirectMessages:
-        case MGTwitterDirectMessage:
-            [MGTwitterMessagesYAJLParser parserWithJSON:jsonData delegate:self 
-                              connectionIdentifier:identifier requestType:requestType 
-                                      responseType:responseType URL:URL deliveryOptions:_deliveryOptions];
-            break;
-		case MGTwitterMiscellaneous:
-			[MGTwitterMiscYAJLParser parserWithJSON:jsonData delegate:self 
-						  connectionIdentifier:identifier requestType:requestType 
-								  responseType:responseType URL:URL deliveryOptions:_deliveryOptions];
-			break;
-        case MGTwitterSearchResults:
- 			[MGTwitterSearchYAJLParser parserWithJSON:jsonData delegate:self 
-						  connectionIdentifier:identifier requestType:requestType 
-								  responseType:responseType URL:URL deliveryOptions:_deliveryOptions];
-			break;
-		case MGTwitterOAuthToken:;
-			OAToken *token = [[[OAToken alloc] initWithHTTPResponseBody:[[[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding] autorelease]] autorelease];
-			[self parsingSucceededForRequest:identifier ofResponseType:requestType
-						   withParsedObjects:[NSArray arrayWithObject:token]];
-			break;
-       default:
-            break;
-    }
-#elif TOUCHJSON_AVAILABLE
 	switch (responseType) {
 		case MGTwitterOAuthToken:;
 			OAToken *token = [[[OAToken alloc] initWithHTTPResponseBody:[[[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding] autorelease]] autorelease];
@@ -775,104 +678,9 @@
 								connectionIdentifier:identifier requestType:requestType
 										responseType:responseType URL:URL deliveryOptions:_deliveryOptions];
 			break;
-	}
-#endif
-	
+	}	
 }
-#else
-- (void)_parseDataForConnection:(MGTwitterHTTPURLConnection *)connection
-{
-    NSString *identifier = [[[connection identifier] copy] autorelease];
-    NSData *xmlData = [[[connection data] copy] autorelease];
-    MGTwitterRequestType requestType = [connection requestType];
-    MGTwitterResponseType responseType = [connection responseType];
-    
-#if USE_LIBXML
-	NSURL *URL = [connection URL];
 
-    switch (responseType) {
-        case MGTwitterStatuses:
-        case MGTwitterStatus:
-            [MGTwitterStatusesLibXMLParser parserWithXML:xmlData delegate:self 
-                              connectionIdentifier:identifier requestType:requestType 
-                                      responseType:responseType URL:URL];
-            break;
-        case MGTwitterUsers:
-        case MGTwitterUser:
-            [MGTwitterUsersLibXMLParser parserWithXML:xmlData delegate:self 
-                           connectionIdentifier:identifier requestType:requestType 
-                                   responseType:responseType URL:URL];
-            break;
-        case MGTwitterDirectMessages:
-        case MGTwitterDirectMessage:
-            [MGTwitterMessagesLibXMLParser parserWithXML:xmlData delegate:self 
-                              connectionIdentifier:identifier requestType:requestType 
-                                      responseType:responseType URL:URL];
-            break;
-		case MGTwitterMiscellaneous:
-			[MGTwitterMiscLibXMLParser parserWithXML:xmlData delegate:self 
-						  connectionIdentifier:identifier requestType:requestType 
-								  responseType:responseType URL:URL];
-			break;
-		case MGTwitterSocialGraph:
-			[MGTwitterSocialGraphLibXMLParser parserWithXML:xmlData delegate:self 
-							connectionIdentifier:identifier requestType:requestType 
-								responseType:responseType URL:URL];
-			break;
-		case MGTwitterOAuthToken:;
-			OAToken *token = [[[OAToken alloc] initWithHTTPResponseBody:[[[NSString alloc] initWithData:xmlData encoding:NSUTF8StringEncoding] autorelease]] autorelease];
-			[self parsingSucceededForRequest:identifier ofResponseType:requestType
-						   withParsedObjects:[NSArray arrayWithObject:token]];
-        default:
-            break;
-    }
-#else
-    // Determine which type of parser to use.
-    switch (responseType) {
-        case MGTwitterStatuses:
-        case MGTwitterStatus:
-            [MGTwitterStatusesParser parserWithXML:xmlData delegate:self 
-                              connectionIdentifier:identifier requestType:requestType 
-                                      responseType:responseType];
-            break;
-        case MGTwitterUsers:
-        case MGTwitterUser:
-            [MGTwitterUsersParser parserWithXML:xmlData delegate:self 
-                           connectionIdentifier:identifier requestType:requestType 
-                                   responseType:responseType];
-            break;
-        case MGTwitterDirectMessages:
-        case MGTwitterDirectMessage:
-            [MGTwitterMessagesParser parserWithXML:xmlData delegate:self 
-                              connectionIdentifier:identifier requestType:requestType 
-                                      responseType:responseType];
-            break;
-		case MGTwitterMiscellaneous:
-			[MGTwitterMiscParser parserWithXML:xmlData delegate:self 
-						  connectionIdentifier:identifier requestType:requestType 
-								  responseType:responseType];
-			break;
-		case MGTwitterUserLists:
-			NSLog(@"response type: %d", responseType);
-			[MGTwitterUserListsParser parserWithXML:xmlData delegate:self 
-						  connectionIdentifier:identifier requestType:requestType 
-								  responseType:responseType];
-			break;
-			
-		case MGTwitterSocialGraph:
-			[MGTwitterSocialGraphParser parserWithXML:xmlData delegate:self 
-						  connectionIdentifier:identifier requestType:requestType 
-								  responseType:responseType];
-		case MGTwitterOAuthToken:;
-			OAToken *token = [[[OAToken alloc] initWithHTTPResponseBody:[[[NSString alloc] initWithData:xmlData encoding:NSUTF8StringEncoding] autorelease]] autorelease];
-			[self parsingSucceededForRequest:identifier ofResponseType:requestType
-						   withParsedObjects:[NSArray arrayWithObject:token]];
-        default:
-            break;
-    }
-#endif
-}
-#endif
 
 #pragma mark Delegate methods
 
@@ -909,12 +717,10 @@
 			if ([self _isValidDelegateForSelector:@selector(miscInfoReceived:forRequest:)])
 				[_delegate miscInfoReceived:parsedObjects forRequest:identifier];
 			break;
-#if YAJL_AVAILABLE || TOUCHJSON_AVAILABLE
 		case MGTwitterSearchResults:
 			if ([self _isValidDelegateForSelector:@selector(searchResultsReceived:forRequest:)])
 				[_delegate searchResultsReceived:parsedObjects forRequest:identifier];
 			break;
-#endif
 		case MGTwitterSocialGraph:
 			if ([self _isValidDelegateForSelector:@selector(socialGraphInfoReceived:forRequest:)])
 				[_delegate socialGraphInfoReceived: parsedObjects forRequest:identifier];
@@ -941,7 +747,6 @@
 		[_delegate requestFailed:requestIdentifier withError:error];
 }
 
-#if YAJL_AVAILABLE || TOUCHJSON_AVAILABLE
 
 - (void)parsedObject:(NSDictionary *)dictionary forRequest:(NSString *)requestIdentifier 
                  ofResponseType:(MGTwitterResponseType)responseType
@@ -949,8 +754,6 @@
 	if ([self _isValidDelegateForSelector:@selector(receivedObject:forRequest:)])
 		[_delegate receivedObject:dictionary forRequest:requestIdentifier];
 }
-
-#endif
 
 
 #pragma mark NSURLConnection delegate methods
@@ -1970,8 +1773,6 @@
 }
 
 
-#if YAJL_AVAILABLE || TOUCHJSON_AVAILABLE
-
 #pragma mark -
 #pragma mark Search API methods
 #pragma mark -
@@ -2044,8 +1845,6 @@
                            responseType:MGTwitterSearchResults];
 }
 
-
-#endif
 
 @end
 
