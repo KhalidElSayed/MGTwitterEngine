@@ -17,6 +17,9 @@
 	OAToken *token;
 }
 
+- (void)demoSingleToken;
+- (void)demoxAuth;
+
 // this gets called when the OAuth token is received
 -(void)runTests;
 

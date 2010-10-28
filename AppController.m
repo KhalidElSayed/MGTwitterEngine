@@ -13,45 +13,73 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-    // Put your Twitter username and password here:
-    NSString *username = nil;
-    NSString *password = nil;
-	
+	// Get from http://dev.twitter.com/apps
 	NSString *consumerKey = nil;
 	NSString *consumerSecret = nil;
-	
-    // Most API calls require a name and password to be set...
-    if (! username || ! password || !consumerKey || !consumerSecret) {
-        NSLog(@"You forgot to specify your username/password/key/secret in AppController.m, things might not work!");
-		NSLog(@"And if things are mysteriously working without the username/password, it's because NSURLConnection is using a session cookie from another connection.");
+
+    if (!consumerKey || !consumerSecret) {
+        NSLog(@"You forgot to specify your key/secret in AppController.m, some things might not work!");
     }
     
-    // Create a TwitterEngine and set our login details.
+    // Create a TwitterEngine and set our details.
     twitterEngine = [[MGTwitterEngine alloc] initWithDelegate:self];
 	[twitterEngine setUsesSecureConnection:NO];
 	[twitterEngine setConsumerKey:consumerKey secret:consumerSecret];
-	// This has been undepreciated for the purposes of dealing with Lists.
-	// At present the list API calls require you to specify a user that owns the list.
-	[twitterEngine setUsername:username];
-	 
+	
+	// Select based on the comments below
+#define USE_XAUTH_DEMO 1
+	
+#if USE_XAUTH_DEMO
+	// Use this to exchange your username and password for a oAuth acess token using xAuth
+	// You must have xAauth acess for this (mail api@twitter.com and ask)
+	[self demoxAuth];
+#else
+	// Use this for testing (even if you don't have xAuth access yet)
+	// see http://dev.twitter.com/pages/oauth_single_token for details
+	[self demoSingleToken];
+#endif
+}
+
+- (void)demoxAuth 
+{
+	NSString *username = nil;
+	NSString *password = nil;
+	
+	NSAssert(username && password, @"Enter your username and password in AppController.m!");
+	
 	[twitterEngine getXAuthAccessTokenForUsername:username password:password];
 }
 
--(void)runTests{
+- (void)demoSingleToken 
+{
+	NSString *oauth_token = nil;
+	NSString *oauth_token_secret = nil;
+	
+	if (!oauth_token || !oauth_token_secret) {
+        NSLog(@"You forgot to specify your single access token in AppController.m, some things might not work!");
+    }
+	
+	token = [[OAToken alloc] initWithKey:oauth_token secret:oauth_token_secret];
+	
+	[self runTests];
+}
+
+- (void)runTests
+{
 	[twitterEngine setAccessToken:token];
 	
 	// Configure how the delegate methods are called to deliver results. See MGTwitterEngineDelegate.h for more info
 	//[twitterEngine setDeliveryOptions:MGTwitterEngineDeliveryIndividualResultsOption];
-
+	
 	// Get the public timeline
 	NSLog(@"getPublicTimelineSinceID: connectionIdentifier = %@", [twitterEngine getPublicTimeline]);
-
+	
 	// Other types of information available from the API:
 	
-	#define TESTING_ID 1131604824
-	#define TESTING_PRIMARY_USER @"gnitset"
-	#define TESTING_SECONDARY_USER @"chockenberry"
-	#define TESTING_MESSAGE_ID 52182684
+#define TESTING_ID 1131604824
+#define TESTING_PRIMARY_USER @"gnitset"
+#define TESTING_SECONDARY_USER @"chockenberry"
+#define TESTING_MESSAGE_ID 52182684
 	
 	// Status methods:
 	NSLog(@"getHomeTimelineFor: connectionIdentifier = %@", [twitterEngine getHomeTimelineSinceID:0 startingAtPage:0 count:20]);
@@ -60,10 +88,10 @@
 	//NSLog(@"sendUpdate: connectionIdentifier = %@", [twitterEngine sendUpdate:[@"This is a test on " stringByAppendingString:[[NSDate date] description]]]);
 	NSLog(@"getRepliesStartingAtPage: connectionIdentifier = %@", [twitterEngine getRepliesStartingAtPage:0]);
 	//NSLog(@"deleteUpdate: connectionIdentifier = %@", [twitterEngine deleteUpdate:TESTING_ID]);
-
+	
 	//	Lists
 	//NSLog(@"get Lists for User:%@ connectionIdentifier = %@", TESTING_PRIMARY_USER, [twitterEngine getListsForUser:TESTING_PRIMARY_USER]);
-
+	
 	//	NSString *listName = @"test list 3";
 	//	NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:@"private", @"mode", @"a description", @"description", nil];
 	//	
@@ -73,20 +101,20 @@
 	//NSLog(@"getRecentlyUpdatedFriendsFor: connectionIdentifier = %@", [twitterEngine getRecentlyUpdatedFriendsFor:nil startingAtPage:0]);
 	//NSLog(@"getFollowersIncludingCurrentStatus: connectionIdentifier = %@", [twitterEngine getFollowersIncludingCurrentStatus:YES]);
 	//NSLog(@"getUserInformationFor: connectionIdentifier = %@", [twitterEngine getUserInformationFor:TESTING_PRIMARY_USER]);
-														  
+	
 	// Direct Message methods:
 	//NSLog(@"getDirectMessagesSinceID: connectionIdentifier = %@", [twitterEngine getDirectMessagesSinceID:0 startingAtPage:0]);
 	//NSLog(@"getSentDirectMessagesSinceID: connectionIdentifier = %@", [twitterEngine getSentDirectMessagesSinceID:0 startingAtPage:0]);
 	//NSLog(@"sendDirectMessage: connectionIdentifier = %@", [twitterEngine sendDirectMessage:[@"This is a test on " stringByAppendingString:[[NSDate date] description]] to:TESTING_SECONDARY_USER]);
 	//NSLog(@"deleteDirectMessage: connectionIdentifier = %@", [twitterEngine deleteDirectMessage:TESTING_MESSAGE_ID]);
-
-
+	
+	
 	// Friendship methods:
 	//NSLog(@"enableUpdatesFor: connectionIdentifier = %@", [twitterEngine enableUpdatesFor:TESTING_SECONDARY_USER]);
 	//NSLog(@"disableUpdatesFor: connectionIdentifier = %@", [twitterEngine disableUpdatesFor:TESTING_SECONDARY_USER]);
 	//NSLog(@"isUser:receivingUpdatesFor: connectionIdentifier = %@", [twitterEngine isUser:TESTING_SECONDARY_USER receivingUpdatesFor:TESTING_PRIMARY_USER]);
-
-
+	
+	
 	// Account methods:
 	//NSLog(@"checkUserCredentials: connectionIdentifier = %@", [twitterEngine checkUserCredentials]);
 	//NSLog(@"endUserSession: connectionIdentifier = %@", [twitterEngine endUserSession]);
@@ -97,37 +125,37 @@
 	// TODO: Add: account/update_profile_background_image
 	//NSLog(@"getRateLimitStatus: connectionIdentifier = %@", [twitterEngine getRateLimitStatus]);
 	// TODO: Add: account/update_profile
-
+	
 	// Favorite methods:
 	//NSLog(@"getFavoriteUpdatesFor: connectionIdentifier = %@", [twitterEngine getFavoriteUpdatesFor:nil startingAtPage:0]);
 	//NSLog(@"markUpdate: connectionIdentifier = %@", [twitterEngine markUpdate:TESTING_ID asFavorite:YES]);
-
+	
 	// Notification methods
 	//NSLog(@"enableNotificationsFor: connectionIdentifier = %@", [twitterEngine enableNotificationsFor:TESTING_SECONDARY_USER]);
 	//NSLog(@"disableNotificationsFor: connectionIdentifier = %@", [twitterEngine disableNotificationsFor:TESTING_SECONDARY_USER]);
-
+	
 	// Block methods
 	//NSLog(@"block: connectionIdentifier = %@", [twitterEngine block:TESTING_SECONDARY_USER]);
 	//NSLog(@"unblock: connectionIdentifier = %@", [twitterEngine unblock:TESTING_SECONDARY_USER]);
-
+	
 	// Help methods:
 	//NSLog(@"testService: connectionIdentifier = %@", [twitterEngine testService]);
 	
 	// Social Graph methods
 	//NSLog(@"getFriendIDsFor: connectionIdentifier = %@", [twitterEngine getFriendIDsFor:TESTING_SECONDARY_USER startingFromCursor:-1]);
 	//NSLog(@"getFollowerIDsFor: connectionIdentifier = %@", [twitterEngine getFollowerIDsFor:TESTING_SECONDARY_USER startingFromCursor:-1]);
-
-#if YAJL_AVAILABLE || TOUCHJSON_AVAILABLE
+	
 	// Search method
 	//NSLog(@"getSearchResultsForQuery: connectionIdentifier = %@", [twitterEngine getSearchResultsForQuery:TESTING_PRIMARY_USER sinceID:0 startingAtPage:1 count:20]);
 	
 	// Trends method
 	//NSLog(@"getTrends: connectionIdentifier = %@", [twitterEngine getTrends]);
-#endif
+
 }
 
 - (void)dealloc
 {
+	[token release];
     [twitterEngine release];
     [super dealloc];
 }
@@ -203,7 +231,7 @@
 - (void)connectionFinished:(NSString *)connectionIdentifier
 {
     NSLog(@"Connection finished %@", connectionIdentifier);
-
+	
 	if ([twitterEngine numberOfConnections] == 0)
 	{
 		[NSApp terminate:self];
@@ -213,18 +241,14 @@
 - (void)accessTokenReceived:(OAToken *)aToken forRequest:(NSString *)connectionIdentifier
 {
 	NSLog(@"Access token received! %@",aToken);
-
+	
 	token = [aToken retain];
 	[self runTests];
 }
-
-#if YAJL_AVAILABLE || TOUCHJSON_AVAILABLE
 
 - (void)receivedObject:(NSDictionary *)dictionary forRequest:(NSString *)connectionIdentifier
 {
     NSLog(@"Got an object for %@: %@", connectionIdentifier, dictionary);
 }
-
-#endif
 
 @end
