@@ -25,17 +25,12 @@
 	NSString *_APIDomain;
 	NSString *_searchDomain;
     BOOL _secureConnection;
-	BOOL _clearsCookies;
 	MGTwitterEngineDeliveryOptions _deliveryOptions;
 	
 	// OAuth
 	NSString *_consumerKey;
 	NSString *_consumerSecret;
 	OAToken  *_accessToken;
-	
-	// basic auth - deprecated
-	NSString *_username;
-    NSString *_password;
 }
 
 #pragma mark Class management
@@ -57,8 +52,6 @@
 - (void)setSearchDomain:(NSString *)domain;
 - (BOOL)usesSecureConnection; // YES = uses HTTPS, default is YES
 - (void)setUsesSecureConnection:(BOOL)flag;
-- (BOOL)clearsCookies; // YES = deletes twitter.com cookies when setting username/password, default is NO (see README.txt)
-- (void)setClearsCookies:(BOOL)flag;
 - (MGTwitterEngineDeliveryOptions)deliveryOptions;
 - (void)setDeliveryOptions:(MGTwitterEngineDeliveryOptions)deliveryOptions;
 
@@ -233,15 +226,6 @@
 
 @end
 
-@interface MGTwitterEngine (BasicAuth)
-
-- (NSString *)username;
-- (void)setUsername:(NSString *) newUsername;
-
-- (NSString *)password DEPRECATED_ATTRIBUTE;
-- (void)setUsername:(NSString *)username password:(NSString *)password DEPRECATED_ATTRIBUTE;
-
-@end
 
 @interface MGTwitterEngine (OAuth)
 

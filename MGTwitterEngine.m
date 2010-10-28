@@ -123,7 +123,6 @@
 		_searchDomain = [TWITTER_SEARCH_DOMAIN retain];
 
         _secureConnection = YES;
-		_clearsCookies = NO;
 		_deliveryOptions = MGTwitterEngineDeliveryAllResultsOption;
     }
     
@@ -138,8 +137,6 @@
     [[_connections allValues] makeObjectsPerformSelector:@selector(cancel)];
     [_connections release];
     
-    [_username release];
-    [_password release];
     [_clientName release];
     [_clientVersion release];
     [_clientURL release];
@@ -248,18 +245,6 @@
 - (void)setUsesSecureConnection:(BOOL)flag
 {
     _secureConnection = flag;
-}
-
-
-- (BOOL)clearsCookies
-{
-	return _clearsCookies;
-}
-
-
-- (void)setClearsCookies:(BOOL)flag
-{
-	_clearsCookies = flag;
 }
 
 
@@ -414,8 +399,6 @@
 
 
 #pragma mark Request sending methods
-
-#define SET_AUTHORIZATION_IN_HEADER 0
 
 - (NSString *)_sendRequestWithMethod:(NSString *)method 
                                 path:(NSString *)path 
@@ -585,16 +568,10 @@
 		}
 	}
 	
-#if 1 // SET_AUTHORIZATION_IN_HEADER
+
     NSString *urlString = [NSString stringWithFormat:@"%@://%@/%@", 
                            connectionType,
                            domain, fullPath];
-#else    
-    NSString *urlString = [NSString stringWithFormat:@"%@://%@:%@@%@/%@", 
-                           connectionType, 
-                           [self _encodeString:_username], [self _encodeString:_password], 
-                           domain, fullPath];
-#endif
     
     NSURL *finalURL = [NSURL URLWithString:urlString];
     if (!finalURL) {
@@ -635,16 +612,6 @@
     [theRequest setValue:_clientURL     forHTTPHeaderField:@"X-Twitter-Client-URL"];
 	
     [theRequest setValue:contentType    forHTTPHeaderField:@"Content-Type"];
-    
-#if SET_AUTHORIZATION_IN_HEADER
-	if ([self username] && [self password]) {
-		// Set header for HTTP Basic authentication explicitly, to avoid problems with proxies and other intermediaries
-		NSString *authStr = [NSString stringWithFormat:@"%@:%@", [self username], [self password]];
-		NSData *authData = [authStr dataUsingEncoding:NSUTF8StringEncoding];
-		NSString *authValue = [NSString stringWithFormat:@"Basic %@", [authData base64EncodingWithLineLength:80]];
-		[theRequest setValue:authValue forHTTPHeaderField:@"Authorization"];
-	}
-#endif
 	
     return theRequest;
 }
@@ -761,13 +728,7 @@
 
 - (void)connection:(NSURLConnection *)connection didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
 {
-	if (_username && _password && [challenge previousFailureCount] == 0 && ![challenge proposedCredential]) {
-		NSURLCredential *credential = [NSURLCredential credentialWithUser:_username password:_password 
-															  persistence:NSURLCredentialPersistenceForSession];
-		[[challenge sender] useCredential:credential forAuthenticationChallenge:challenge];
-	} else {
-		[[challenge sender] continueWithoutCredentialForAuthenticationChallenge:challenge];
-	}
+	[[challenge sender] continueWithoutCredentialForAuthenticationChallenge:challenge];
 }
 
 
@@ -1848,51 +1809,7 @@
 
 @end
 
-@implementation MGTwitterEngine (BasicAuth)
 
-- (NSString *)username
-{
-    return [[_username retain] autorelease];
-}
-
-- (void)setUsername:(NSString *)newUsername
-{
-    // Set new credentials.
-    [_username release];
-    _username = [newUsername retain];
-}
-
-- (NSString *)password
-{
-    return [[_password retain] autorelease];
-}
-
-
-- (void)setUsername:(NSString *)newUsername password:(NSString *)newPassword
-{
-    // Set new credentials.
-    [_username release];
-    _username = [newUsername retain];
-    [_password release];
-    _password = [newPassword retain];
-    
-	if ([self clearsCookies]) {
-		// Remove all cookies for twitter, to ensure next connection uses new credentials.
-		NSString *urlString = [NSString stringWithFormat:@"%@://%@", 
-							   (_secureConnection) ? @"https" : @"http", 
-							   _APIDomain];
-		NSURL *url = [NSURL URLWithString:urlString];
-		
-		NSHTTPCookieStorage *cookieStorage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
-		NSEnumerator *enumerator = [[cookieStorage cookiesForURL:url] objectEnumerator];
-		NSHTTPCookie *cookie = nil;
-		while ((cookie = [enumerator nextObject])) {
-			[cookieStorage deleteCookie:cookie];
-		}
-	}
-}
-
-@end
 
 @implementation MGTwitterEngine (OAuth)
 
