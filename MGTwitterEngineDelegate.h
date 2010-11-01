@@ -23,12 +23,11 @@ typedef enum _MGTwitterEngineDeliveryOptions {
 
 @protocol MGTwitterEngineDelegate
 
+@optional
+
 // These delegate methods are called after a connection has been established
 - (void)requestSucceeded:(NSString *)connectionIdentifier;
 - (void)requestFailed:(NSString *)connectionIdentifier withError:(NSError *)error;
-
-@optional
-
 
 // This delegate method is called each time a new result is parsed from the connection and
 // the deliveryOption is configured for MGTwitterEngineDeliveryIndividualResults.
