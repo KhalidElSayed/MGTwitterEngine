@@ -124,6 +124,8 @@
 
         _secureConnection = YES;
 		_deliveryOptions = MGTwitterEngineDeliveryAllResultsOption;
+		
+		_rateLimitRemaining = NSNotFound;
     }
     
     return self;
@@ -256,6 +258,11 @@
 - (void)setDeliveryOptions:(MGTwitterEngineDeliveryOptions)deliveryOptions
 {
 	_deliveryOptions = deliveryOptions;
+}
+
+- (NSUInteger)rateLimitRemaining 
+{
+	return _rateLimitRemaining;
 }
 
 
@@ -800,7 +807,17 @@
 
 - (void)connectionDidFinishLoading:(MGTwitterHTTPURLConnection *)connection
 {
-
+	// Update the rate limit
+	NSString *remaining = [[[connection response] allHeaderFields] valueForKey:@"X-Ratelimit-Remaining"];
+	if (remaining) {
+		NSNumberFormatter * f = [[NSNumberFormatter alloc] init];
+		NSNumber *n = [f numberFromString:remaining];
+		if (n) {
+			_rateLimitRemaining = [remaining integerValue];
+		}
+		[f release];
+	}
+	
     NSInteger statusCode = [[connection response] statusCode];
 
     if (statusCode >= 400) {

@@ -27,6 +27,9 @@
     BOOL _secureConnection;
 	MGTwitterEngineDeliveryOptions _deliveryOptions;
 	
+	// Rate limits
+	NSUInteger _rateLimitRemaining;
+	
 	// OAuth
 	NSString *_consumerKey;
 	NSString *_consumerSecret;
@@ -54,6 +57,7 @@
 - (void)setUsesSecureConnection:(BOOL)flag;
 - (MGTwitterEngineDeliveryOptions)deliveryOptions;
 - (void)setDeliveryOptions:(MGTwitterEngineDeliveryOptions)deliveryOptions;
+- (NSUInteger)rateLimitRemaining;
 
 // Connection methods
 - (NSUInteger)numberOfConnections;
